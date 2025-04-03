@@ -74,4 +74,66 @@ public class QuadTree {
     public QuadTreeNode getRoot() {
         return root;
     }
+
+    public BufferedImage toBufferedImage() {
+        // DEBUGGING
+        if (root == null) {
+            System.out.println("QuadTree root masih null! Tidak bisa membuat gambar.");
+            return null;
+        }        
+
+        // Hitung ukuran gambar yang terkompresi berdasarkan jumlah blok (misalnya, daun dari QuadTree)
+        int newWidth = root.width;
+        int newHeight = root.height;
+    
+        BufferedImage img = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        drawQuadTree(img, root);
+        return img;
+    }  
+
+    public int getDepth(QuadTreeNode node) {
+        if (node == null) return 0;
+        return Math.max(getDepth(node.topLeft), Math.max(getDepth(node.topRight), Math.max(getDepth(node.bottomLeft), getDepth(node.bottomRight)))) + 1;
+    }    
+
+    public int countNodes(QuadTreeNode node) {
+        if (node == null) return 0;
+        int count = 1; // hitung node saat ini
+        count += countNodes(node.topLeft);
+        count += countNodes(node.topRight);
+        count += countNodes(node.bottomLeft);
+        count += countNodes(node.bottomRight);
+        return count;
+    }
+
+    public int getTotalBlocks() {
+        return countLeafNodes(root);
+    }
+    
+    private int countLeafNodes(QuadTreeNode node) {
+        if (node == null) return 0;
+    
+        // Kalau ini adalah node daun (tidak punya anak), hitung sebagai 1 blok
+        if (node.isLeaf()) return 1;
+    
+        // Rekursif ke anak-anaknya
+        return countLeafNodes(node.topLeft) + countLeafNodes(node.topRight) +
+               countLeafNodes(node.bottomLeft) + countLeafNodes(node.bottomRight);
+    }    
+    
+    private void drawQuadTree(BufferedImage img, QuadTreeNode node) {
+        if (node.isLeaf) {
+            int color = (node.avgR << 16) | (node.avgG << 8) | node.avgB;
+            for (int i = node.x; i < node.x + node.width; i++) {
+                for (int j = node.y; j < node.y + node.height; j++) {
+                    img.setRGB(i, j, color);
+                }
+            }
+        } else {
+            if (node.topLeft != null) drawQuadTree(img, node.topLeft);
+            if (node.topRight != null) drawQuadTree(img, node.topRight);
+            if (node.bottomLeft != null) drawQuadTree(img, node.bottomLeft);
+            if (node.bottomRight != null) drawQuadTree(img, node.bottomRight);
+        }
+    }    
 }

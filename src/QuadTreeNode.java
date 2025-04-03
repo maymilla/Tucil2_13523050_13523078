@@ -28,6 +28,11 @@ class QuadTreeNode {
         this.isLeaf = false;
     }
 
+    // Getter mengecek apakah node ini daun atau tidak
+    public boolean isLeaf(){
+        return isLeaf;
+    }
+    
     // Method untuk menambahkan anak pada node internal
     public void setChildren(QuadTreeNode topLeft, QuadTreeNode topRight, QuadTreeNode bottomLeft, QuadTreeNode bottomRight) {
         this.topLeft = topLeft;
