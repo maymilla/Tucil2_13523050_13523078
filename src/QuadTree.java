@@ -4,9 +4,9 @@ public class QuadTree {
     private QuadTreeNode root; // Node utama (akar)
     private int threshold; // Ambang batas error untuk pembagian blok
     private int minBlockSize; // Ukuran minimum blok yang diperbolehkan
-    private String errorMethod; // Metode error: "MAD" atau "Entropy"
+    private int errorMethod; // Metode error: "MAD" atau "Entropy"
 
-    public QuadTree(BufferedImage image, int threshold, int minBlockSize, String errorMethod) {
+    public QuadTree(BufferedImage image, int threshold, int minBlockSize, int errorMethod) {
         this.threshold = threshold;
         this.minBlockSize = minBlockSize;
         this.errorMethod = errorMethod;
@@ -29,11 +29,13 @@ public class QuadTree {
         // Jika tidak, bagi blok menjadi 4 sub-blok
         int halfWidth = width / 2;
         int halfHeight = height / 2;
+        int remainingWidth = width - halfWidth; // Sisa lebar setelah dibagi dua
+        int remainingHeight = height - halfHeight; // Sisa tinggi setelah dibagi dua
 
         QuadTreeNode topLeft = buildTree(image, x, y, halfWidth, halfHeight);
-        QuadTreeNode topRight = buildTree(image, x + halfWidth, y, halfWidth, halfHeight);
-        QuadTreeNode bottomLeft = buildTree(image, x, y + halfHeight, halfWidth, halfHeight);
-        QuadTreeNode bottomRight = buildTree(image, x + halfWidth, y + halfHeight, halfWidth, halfHeight);
+        QuadTreeNode topRight = buildTree(image, x + halfWidth, y, remainingWidth, halfHeight);
+        QuadTreeNode bottomLeft = buildTree(image, x, y + halfHeight, halfWidth, remainingHeight);
+        QuadTreeNode bottomRight = buildTree(image, x + halfWidth, y + halfHeight, remainingWidth, remainingHeight);
 
         // Buat node internal dan set anak-anaknya
         QuadTreeNode node = new QuadTreeNode(x, y, width, height, error);
@@ -43,9 +45,9 @@ public class QuadTree {
     }
 
     private double calculateError(BufferedImage image, int x, int y, int width, int height) {
-        if ("MAD".equals(errorMethod)) {
+        if (errorMethod == 1) {
             return MeanAbsoluteDeviation.calculate(image, x, y, width, height);
-        } else if ("Entropy".equals(errorMethod)) {
+        } else if (errorMethod == 2) {
             return Entropy.calculate(image, x, y, width, height);
         }
         return 0; // Default jika tidak ada metode yang dipilih
