@@ -8,23 +8,133 @@ import java.util.Scanner;
 public class ImageProcessor {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
+
+        // inisialisasi
+        String imagePath = "";
+        String outputPath = "";
+        int errorMethod = -1;
+        int threshold = -1;
+        int minBlockSize = -1;
         
         try {
-            String imagePath = "C:/Users/Mayla/Documents/Kuliah/Semester-4/Strategi-Algoritma/Tucil2_13523050_13523078/test/input/kikuk.jpg";
-            System.out.println("Metode perhitungan error:");
-            System.out.println("1. Mean Absolute Deviaton (MAD)");
-            System.out.println("2. Entropy");
-            System.out.print("Masukkan metode perhitungan error: ");
-            int errorMethod = input.nextInt();
-            while (errorMethod < 1 || errorMethod > 4){
-                System.out.println("Input metode tidak valid. Silakan coba lagi.");
-                System.out.print("Masukkan metode perhitungan error: ");
-                errorMethod = input.nextInt();
+            while (true) {
+                System.out.print("Masukkan alamat absolut gambar: ");
+                imagePath = input.nextLine().trim();
+                if (imagePath.isEmpty()) {
+                    System.out.println("Path tidak boleh kosong.");
+                    continue;
+                }
+                File f = new File(imagePath);
+                if (!f.exists()) {
+                    System.out.println("File tidak ditemukan. Coba lagi.");
+                    continue;
+                }
+                break;
             }
-            System.out.print("Masukkan ambang batas (threshold): ");
-            int threshold = input.nextInt();
-            System.out.print("Masukkan ukuran minimum blok: ");
-            int minBlockSize = input.nextInt();
+            System.out.println("Metode perhitungan error:");
+            System.out.println("1. Variance");
+            System.out.println("2. Mean Absolute Deviaton (MAD)");
+            System.out.println("3. Max Pixel Difference");
+            System.out.println("4. Entropy");
+            while (true) {
+                System.out.print("Masukkan metode perhitungan error (1-4): ");
+                String inputLine = input.nextLine().trim();
+            
+                // Cek kalau kosong
+                if (inputLine.isEmpty()) {
+                    System.out.println("Input tidak boleh kosong. Masukkan angka 1-4.");
+                    continue;
+                }
+            
+                try {
+                    errorMethod = Integer.parseInt(inputLine);
+                    if (errorMethod >= 1 && errorMethod <= 4) {
+                        break; // valid, keluar loop
+                    } else {
+                        System.out.println("Input metode tidak valid. Masukkan angka 1-4.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Input harus berupa angka. Masukkan angka 1-4.");
+                }
+            }            
+
+            
+            while (true) {
+                if (errorMethod == 1) 
+                    System.out.print("Masukkan ambang batas (0 - 65025): ");
+                else if (errorMethod == 2 || errorMethod == 3) 
+                    System.out.print("Masukkan ambang batas (0 - 255): ");
+                else 
+                    System.out.print("Masukkan ambang batas (0 - 8): ");
+
+                String inputLine = input.nextLine().trim();
+            
+                if (inputLine.isEmpty()) {
+                    System.out.println("Input tidak boleh kosong.");
+                    continue;
+                }
+            
+                try {
+                    threshold = Integer.parseInt(inputLine);
+                    boolean valid = switch (errorMethod) {
+                        case 1 -> threshold >= 0 && threshold <= 65025;
+                        case 2, 3 -> threshold >= 0 && threshold <= 255;
+                        case 4 -> threshold >= 0 && threshold <= 8;
+                        default -> false;
+                    };
+                    if (valid) {
+                        break;
+                    } else {
+                        System.out.println("Ambang batas tidak valid untuk metode error yang dipilih.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Input harus berupa angka. Silakan coba lagi.");
+                }
+            }
+    
+            while (true) {
+                System.out.print("Masukkan ukuran minimum blok: ");
+                String inputLine = input.nextLine().trim();
+            
+                if (inputLine.isEmpty()) {
+                    System.out.println("Input tidak boleh kosong.");
+                    continue;
+                }
+            
+                try {
+                    minBlockSize = Integer.parseInt(inputLine);
+                    if (minBlockSize > 0) {
+                        break;
+                    } else {
+                        System.out.println("Ukuran blok harus lebih dari 0.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Input harus berupa angka. Silakan coba lagi.");
+                }
+            }
+            
+            while (true) {
+                System.out.print("Masukkan alamat absolut gambar hasil kompresi: ");
+                outputPath = input.nextLine().trim();
+
+                if (outputPath.isEmpty()) {
+                    System.out.println("Path tidak boleh kosong.");
+                    continue;
+                }
+
+                if (outputPath.equals(imagePath)) {
+                    System.out.println("Path output tidak boleh sama dengan input!");
+                    continue;
+                }
+
+                // Cek apakah path diakhiri dengan ekstensi file gambar yang valid
+                if (!(outputPath.endsWith(".jpg") || outputPath.endsWith(".jpeg") || outputPath.endsWith(".png"))) {
+                    System.out.println("Output harus berupa file gambar (.jpg, .jpeg, .png).");
+                    continue;
+                }
+
+                break;
+            }
 
             // Baca gambar
             File imageFile = new File(imagePath);
@@ -41,23 +151,23 @@ public class ImageProcessor {
                 }
             }
             
-            long originalSize = imageFile.length();
-            System.out.println("Ukuran gambar sebelum: " + originalSize + " bytes");
-
             long startTime = System.nanoTime();
             
             // Bangun QuadTree
-            Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, 10, 100, errorMethod);
+            Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, 10, threshold, errorMethod);
             
             long endTime = System.nanoTime();
             long duration = (endTime - startTime); // Waktu dalam nanodetik
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
             // Simpan hasil gambar
-            String outputPath = "test/output/test3.jpg";
             quadtree.saveCompressedImage(width, height, outputPath);
-
+            
             File outputFile = new File(outputPath);
+
+            long originalSize = imageFile.length();
+            System.out.println("Ukuran gambar sebelum: " + originalSize + " bytes");
+            
             long compressedSize = outputFile.length();
             System.out.println("Ukuran gambar setelah: " + compressedSize + " bytes");
             
@@ -66,7 +176,7 @@ public class ImageProcessor {
             System.out.println("Persentase kompresi: " + compressionPercentage + "%");
 
             int depthtree = quadtree.getDepth();
-            System.out.println("kedalaman pohon: " + depthtree);
+            System.out.println("Kedalaman pohon: " + depthtree);
 
             int totalnodes = quadtree.getNodeCount();
             System.out.println("Banyak simpul pada pohon: " + totalnodes);
