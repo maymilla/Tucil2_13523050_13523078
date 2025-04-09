@@ -1,36 +1,30 @@
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
-
 public class MeanAbsoluteDeviation {
-    public static double calculate(BufferedImage image, int x, int y, int width, int height) {
-        return (calculateMAD(image, x, y, width, height, 16) +  // Red
-                calculateMAD(image, x, y, width, height, 8) +   // Green
-                calculateMAD(image, x, y, width, height, 0))    // Blue
-                / 3.0; // Rata-rata MAD RGB
+    public static double calculate(int[][][] rgbImage, int x, int y, int width, int height) {
+        return (calculateMAD(rgbImage, x, y, width, height, 0) +  // Red
+                calculateMAD(rgbImage, x, y, width, height, 1) +  // Green
+                calculateMAD(rgbImage, x, y, width, height, 2))   // Blue
+                / 3.0;
     }
 
-    private static double calculateMAD(BufferedImage image, int x, int y, int width, int height, int shift) {
+    private static double calculateMAD(int[][][] rgbImage, int x, int y, int width, int height, int channel) {
         int sum = 0, count = 0;
         
-        // Hitung rata-rata warna
-        for (int i = x; i < x + width; i++) {
-            for (int j = y; j < y + height; j++) {
-                int rgb = image.getRGB(i, j);
-                sum += (rgb >> shift) & 0xFF;
+        for (int i = y; i < y + height; i++) {
+            for (int j = x; j < x + width; j++) {
+                sum += rgbImage[i][j][channel];
                 count++;
             }
         }
+
         double mean = sum / (double) count;
-        
-        // Hitung Mean Absolute Deviation (MAD)
+
         double mad = 0;
-        for (int i = x; i < x + width; i++) {
-            for (int j = y; j < y + height; j++) {
-                int rgb = image.getRGB(i, j);
-                mad += Math.abs(((rgb >> shift) & 0xFF) - mean);
+        for (int i = y; i < y + height; i++) {
+            for (int j = x; j < x + width; j++) {
+                mad += Math.abs(rgbImage[i][j][channel] - mean);
             }
         }
+
         return mad / count;
     }
 }

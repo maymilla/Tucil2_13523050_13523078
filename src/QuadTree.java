@@ -1,141 +1,98 @@
+
+import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
-public class QuadTree {
-    private QuadTreeNode root; // Node utama (akar)
-    private int threshold; // Ambang batas error untuk pembagian blok
-    private int minBlockSize; // Ukuran minimum blok yang diperbolehkan
-    private int errorMethod; // Metode error: "MAD" atau "Entropy"
+public class Quadtree {
+    private int[][][] img;
+    private QuadtreeNode root;
+    private int nodeCount = 0;
+    private int depth     = 0;
 
-    public QuadTree(BufferedImage image, int threshold, int minBlockSize, int errorMethod) {
-        this.threshold = threshold;
-        this.minBlockSize = minBlockSize;
-        this.errorMethod = errorMethod;
-        this.root = buildTree(image, 0, 0, image.getWidth(), image.getHeight());
+    public Quadtree(int[][][] img, int x, int y, int w, int h, int count, int maxDepthepth,  int threshold, int method) {
+
+        this.img = img;
+        this.nodeCount = 0;  
+        this.depth = 0;
+        this.root = recursive(x, y, w, h, maxDepthepth, depth, threshold, method);
     }
 
-    private QuadTreeNode buildTree(BufferedImage image, int x, int y, int width, int height) {
-        // Hitung error (MAD atau Entropy) untuk blok ini
-        double error = calculateError(image, x, y, width, height);
+    private QuadtreeNode recursive(int x, int y, int w, int h, int currentDepth, int maxDepth, int threshold, int method) {
+        depth = Math.max(depth, currentDepth);
+        double error;
 
-        // Hitung warna rata-rata untuk blok ini
-        int[] avgColor = calculateAverageColor(image, x, y, width, height);
-        int avgR = avgColor[0], avgG = avgColor[1], avgB = avgColor[2];
-
-        // Jika error kecil atau ukuran blok sudah minimum, buat daun
-        if (error < threshold || width <= minBlockSize || height <= minBlockSize) {
-            return new QuadTreeNode(x, y, width, height, avgR, avgG, avgB);
+        if (method == 1) {            // variance
+            error = Variance.calculate(img, x, y, w, h);
+        } else if (method == 2) {     // max‑pixel‑diff
+            error = MeanAbsoluteDeviation.calculate(img, x, y, w, h);
+        } else if (method == 3) {     // max‑pixel‑diff
+            error = MaxPixelDifference.calculate(img, x, y, w, h);
+        } else if (method == 4) {     // max‑pixel‑diff
+            error = Entropy.calculate(img, x, y, w, h);
+        } else {
+            throw new IllegalArgumentException("Unknown method: " + method);
         }
 
-        // Jika tidak, bagi blok menjadi 4 sub-blok
-        int halfWidth = width / 2;
-        int halfHeight = height / 2;
-        int remainingWidth = width - halfWidth; // Sisa lebar setelah dibagi dua
-        int remainingHeight = height - halfHeight; // Sisa tinggi setelah dibagi dua
+        if (currentDepth == maxDepth || error < threshold || w <= 1 || h <= 1) {
+            nodeCount++;
+            return new QuadtreeNode(avgColor(x, y, w, h), true);
+        }
 
-        QuadTreeNode topLeft = buildTree(image, x, y, halfWidth, halfHeight);
-        QuadTreeNode topRight = buildTree(image, x + halfWidth, y, remainingWidth, halfHeight);
-        QuadTreeNode bottomLeft = buildTree(image, x, y + halfHeight, halfWidth, remainingHeight);
-        QuadTreeNode bottomRight = buildTree(image, x + halfWidth, y + halfHeight, remainingWidth, remainingHeight);
-
-        // Buat node internal dan set anak-anaknya
-        QuadTreeNode node = new QuadTreeNode(x, y, width, height, error);
-        node.setChildren(topLeft, topRight, bottomLeft, bottomRight);
-
+        int halfWidth = w / 2, halfHeight = h / 2;
+        QuadtreeNode node = new QuadtreeNode(null, false);
+        node.children[0] = recursive(x, y, halfWidth, halfWidth, currentDepth+1, maxDepth, threshold, method);
+        node.children[1] = recursive(x + halfWidth, y,  w-halfWidth, halfHeight, currentDepth+1, maxDepth, threshold, method);
+        node.children[2] = recursive(x, y + halfHeight, halfWidth, h-halfHeight, currentDepth+1, maxDepth, threshold, method);
+        node.children[3] = recursive(x + halfWidth, y + halfHeight, w-halfWidth, h-halfHeight, currentDepth+1, maxDepth, threshold, method);
+        nodeCount++;
         return node;
     }
 
-    private double calculateError(BufferedImage image, int x, int y, int width, int height) {
-        if (errorMethod == 1) {
-            return MeanAbsoluteDeviation.calculate(image, x, y, width, height);
-        } else if (errorMethod == 2) {
-            return Entropy.calculate(image, x, y, width, height);
-        }
-        return 0; // Default jika tidak ada metode yang dipilih
-    }
-
-    private int[] calculateAverageColor(BufferedImage image, int x, int y, int width, int height) {
-        int totalR = 0, totalG = 0, totalB = 0, count = 0;
-
-        for (int i = x; i < x + width; i++) {
-            for (int j = y; j < y + height; j++) {
-                int rgb = image.getRGB(i, j);
-                totalR += (rgb >> 16) & 0xFF;
-                totalG += (rgb >> 8) & 0xFF;
-                totalB += rgb & 0xFF;
-                count++;
+    private int[] avgColor(int x, int y, int width, int height) {
+        int r=0,g=0,b=0;
+        for (int i=y;i<y+height;i++)
+            for (int j=x;j<x+width;j++) {
+                r += img[i][j][0];
+                g += img[i][j][1];
+                b += img[i][j][2];
             }
+        int total = width*height;
+        return new int[]{ r/total, g/total, b/total };
+    }
+
+    public void saveCompressedImage(int w, int h, String path) {
+        try {
+            BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            paint(root, out, 0, 0, w, h);
+            ImageIO.write(out, "jpg", new File(path));
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-
-        int avgR = totalR / count;
-        int avgG = totalG / count;
-        int avgB = totalB / count;
-
-        return new int[]{avgR, avgG, avgB}; // Kembalikan sebagai array
     }
 
-    public QuadTreeNode getRoot() {
-        return root;
-    }
-
-    public BufferedImage toBufferedImage() {
-        // DEBUGGING
-        if (root == null) {
-            System.out.println("QuadTree root masih null! Tidak bisa membuat gambar.");
-            return null;
-        }        
-
-        // Hitung ukuran gambar yang terkompresi berdasarkan jumlah blok (misalnya, daun dari QuadTree)
-        int newWidth = root.width;
-        int newHeight = root.height;
-    
-        BufferedImage img = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
-        drawQuadTree(img, root);
-        return img;
-    }  
-
-    public int getDepth(QuadTreeNode node) {
-        if (node == null) return 0;
-        return Math.max(getDepth(node.topLeft), Math.max(getDepth(node.topRight), Math.max(getDepth(node.bottomLeft), getDepth(node.bottomRight)))) + 1;
-    }    
-
-    public int countNodes(QuadTreeNode node) {
-        if (node == null) return 0;
-        int count = 1; // hitung node saat ini
-        count += countNodes(node.topLeft);
-        count += countNodes(node.topRight);
-        count += countNodes(node.bottomLeft);
-        count += countNodes(node.bottomRight);
-        return count;
-    }
-
-    public int getTotalBlocks() {
-        return countLeafNodes(root);
-    }
-    
-    private int countLeafNodes(QuadTreeNode node) {
-        if (node == null) return 0;
-    
-        // Kalau ini adalah node daun (tidak punya anak), hitung sebagai 1 blok
-        if (node.isLeaf()) return 1;
-    
-        // Rekursif ke anak-anaknya
-        return countLeafNodes(node.topLeft) + countLeafNodes(node.topRight) +
-               countLeafNodes(node.bottomLeft) + countLeafNodes(node.bottomRight);
-    }    
-    
-    private void drawQuadTree(BufferedImage img, QuadTreeNode node) {
-        if (node.isLeaf) {
-            int color = (node.avgR << 16) | (node.avgG << 8) | node.avgB;
-            for (int i = node.x; i < node.x + node.width; i++) {
-                for (int j = node.y; j < node.y + node.height; j++) {
-                    img.setRGB(i, j, color);
-                }
-            }
+    private void paint(QuadtreeNode n, BufferedImage imgOut, int x, int y, int width, int height) {
+        if (n.isLeaf) {
+            Color c = new Color(n.color[0], n.color[1], n.color[2]);
+            for (int i=0;i<height;i++)
+                for (int j=0;j<width;j++)
+                    if (y+i < imgOut.getHeight() && x+j < imgOut.getWidth())
+                        imgOut.setRGB(x+j, y+i, c.getRGB());
         } else {
-            if (node.topLeft != null) drawQuadTree(img, node.topLeft);
-            if (node.topRight != null) drawQuadTree(img, node.topRight);
-            if (node.bottomLeft != null) drawQuadTree(img, node.bottomLeft);
-            if (node.bottomRight != null) drawQuadTree(img, node.bottomRight);
+            int halfWidth = width/2, halfHeight = height/2;
+            int remWidth = width-halfWidth, remHeight = height-halfHeight;
+            paint(n.children[0], imgOut, x, y, halfWidth, halfHeight);
+            paint(n.children[1], imgOut, x+halfWidth, y, remWidth, halfHeight);
+            paint(n.children[2], imgOut, x, y+halfHeight, halfWidth, remHeight);
+            paint(n.children[3], imgOut, x+halfWidth, y+halfHeight, remWidth, remHeight);
         }
-    }    
+    }
+
+    public int getDepth(){ 
+        return depth; 
+    }
+    public int getNodeCount() { 
+        return nodeCount; 
+    }
 }
