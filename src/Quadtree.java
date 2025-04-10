@@ -65,14 +65,14 @@ public class Quadtree {
     public void saveCompressedImage(int w, int h, String path) {
         try {
             BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-            paint(root, out, 0, 0, w, h);
+            outputImage(root, out, 0, 0, w, h);
             ImageIO.write(out, "jpg", new File(path));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void paint(QuadtreeNode n, BufferedImage imgOut, int x, int y, int width, int height) {
+    private void outputImage(QuadtreeNode n, BufferedImage imgOut, int x, int y, int width, int height) {
         if (n.isLeaf) {
             Color c = new Color(n.color[0], n.color[1], n.color[2]);
             for (int i=0;i<height;i++)
@@ -82,10 +82,10 @@ public class Quadtree {
         } else {
             int halfWidth = width/2, halfHeight = height/2;
             int remWidth = width-halfWidth, remHeight = height-halfHeight;
-            paint(n.children[0], imgOut, x, y, halfWidth, halfHeight);
-            paint(n.children[1], imgOut, x+halfWidth, y, remWidth, halfHeight);
-            paint(n.children[2], imgOut, x, y+halfHeight, halfWidth, remHeight);
-            paint(n.children[3], imgOut, x+halfWidth, y+halfHeight, remWidth, remHeight);
+            outputImage(n.children[0], imgOut, x, y, halfWidth, halfHeight);
+            outputImage(n.children[1], imgOut, x+halfWidth, y, remWidth, halfHeight);
+            outputImage(n.children[2], imgOut, x, y+halfHeight, halfWidth, remHeight);
+            outputImage(n.children[3], imgOut, x+halfWidth, y+halfHeight, remWidth, remHeight);
         }
     }
 
