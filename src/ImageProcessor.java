@@ -42,7 +42,7 @@ public class ImageProcessor {
             
                 // Cek kalau kosong
                 if (inputLine.isEmpty()) {
-                    System.out.println("Input tidak boleh kosong. Masukkan angka 1-4.");
+                    System.out.println("Input tidak boleh kosong. Masukkan angka antara 1-4.");
                     continue;
                 }
             
@@ -51,10 +51,10 @@ public class ImageProcessor {
                     if (errorMethod >= 1 && errorMethod <= 4) {
                         break; // valid, keluar loop
                     } else {
-                        System.out.println("Input metode tidak valid. Masukkan angka 1-4.");
+                        System.out.println("Input metode tidak valid. Masukkan angka antara 1-4.");
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("Input harus berupa angka. Masukkan angka 1-4.");
+                    System.out.println("Input harus berupa integer. Masukkan angka antara 1-4.");
                 }
             }            
 
@@ -109,7 +109,7 @@ public class ImageProcessor {
                         System.out.println("Ukuran blok harus lebih dari 0.");
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("Input harus berupa angka. Silakan coba lagi.");
+                    System.out.println("Input harus berupa integer. Silakan coba lagi.");
                 }
             }
             
@@ -157,7 +157,7 @@ public class ImageProcessor {
             Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, minBlockSize, threshold, errorMethod);
             
             long endTime = System.nanoTime();
-            long duration = (endTime - startTime); // Waktu dalam nanodetik
+            long duration = (endTime - startTime) / 1_000_000; // Waktu dalam nanodetik
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
             // Simpan hasil gambar
