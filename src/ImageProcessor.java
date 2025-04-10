@@ -154,7 +154,7 @@ public class ImageProcessor {
             long startTime = System.nanoTime();
             
             // Bangun QuadTree
-            Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, 10, threshold, errorMethod);
+            Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, minBlockSize, threshold, errorMethod);
             
             long endTime = System.nanoTime();
             long duration = (endTime - startTime); // Waktu dalam nanodetik

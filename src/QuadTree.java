@@ -11,15 +11,15 @@ public class Quadtree {
     private int nodeCount = 0;
     private int depth     = 0;
 
-    public Quadtree(int[][][] img, int x, int y, int w, int h, int count, int maxDepthepth,  int threshold, int method) {
+    public Quadtree(int[][][] img, int x, int y, int w, int h, int count, int minBlockSize,  int threshold, int method) {
 
         this.img = img;
         this.nodeCount = 0;  
         this.depth = 0;
-        this.root = recursive(x, y, w, h, maxDepthepth, depth, threshold, method);
+        this.root = recursive(x, y, w, h, 0, minBlockSize, threshold, method);
     }
 
-    private QuadtreeNode recursive(int x, int y, int w, int h, int currentDepth, int maxDepth, int threshold, int method) {
+    private QuadtreeNode recursive(int x, int y, int w, int h, int currentDepth, int minBlockSize, int threshold, int method) {
         depth = Math.max(depth, currentDepth);
         double error;
 
@@ -34,18 +34,17 @@ public class Quadtree {
         } else {
             throw new IllegalArgumentException("Unknown method: " + method);
         }
-
-        if (currentDepth == maxDepth || error < threshold || w <= 1 || h <= 1) {
+        if (error < threshold || w <= minBlockSize || h <= minBlockSize) {
             nodeCount++;
             return new QuadtreeNode(avgColor(x, y, w, h), true);
         }
 
         int halfWidth = w / 2, halfHeight = h / 2;
         QuadtreeNode node = new QuadtreeNode(null, false);
-        node.children[0] = recursive(x, y, halfWidth, halfWidth, currentDepth+1, maxDepth, threshold, method);
-        node.children[1] = recursive(x + halfWidth, y,  w-halfWidth, halfHeight, currentDepth+1, maxDepth, threshold, method);
-        node.children[2] = recursive(x, y + halfHeight, halfWidth, h-halfHeight, currentDepth+1, maxDepth, threshold, method);
-        node.children[3] = recursive(x + halfWidth, y + halfHeight, w-halfWidth, h-halfHeight, currentDepth+1, maxDepth, threshold, method);
+        node.children[0] = recursive(x, y, halfWidth, halfWidth, currentDepth+1, minBlockSize, threshold, method);
+        node.children[1] = recursive(x + halfWidth, y,  w-halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
+        node.children[2] = recursive(x, y + halfHeight, halfWidth, h-halfHeight, currentDepth+1, minBlockSize, threshold, method);
+        node.children[3] = recursive(x + halfWidth, y + halfHeight, w-halfWidth, h-halfHeight, currentDepth+1, minBlockSize, threshold, method);
         nodeCount++;
         return node;
     }

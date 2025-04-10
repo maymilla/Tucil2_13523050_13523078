@@ -1,7 +1,6 @@
 
 public class MaxPixelDifference {
 
-    /** Mean of (max‑min) across R, G, B channels in the region. */
     public static double calculate(int[][][] img,
                                    int x, int y, int w, int h) {
 
@@ -11,7 +10,6 @@ public class MaxPixelDifference {
         return (dr + dg + db) / 3.0;
     }
 
-    // -- helpers -----------------------------------------------------
     private static int range(int[][][] img,
                              int x, int y, int w, int h, int ch) {
         int max = Integer.MIN_VALUE;
