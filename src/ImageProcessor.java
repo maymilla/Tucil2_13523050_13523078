@@ -13,12 +13,12 @@ public class ImageProcessor {
         String imagePath = "";
         String outputPath = "";
         int errorMethod = -1;
-        int threshold = -1;
+        double threshold = -1;
         int minBlockSize = -1;
         
         try {
             while (true) {
-                System.out.print("Masukkan alamat absolut gambar: ");
+                System.out.print("Masukkan alamat absolut gambar yang ingin dikompresi: ");
                 imagePath = input.nextLine().trim();
                 if (imagePath.isEmpty()) {
                     System.out.println("Path tidak boleh kosong.");
@@ -75,11 +75,11 @@ public class ImageProcessor {
                 }
             
                 try {
-                    threshold = Integer.parseInt(inputLine);
+                    threshold = Double.parseDouble(inputLine);
                     boolean valid = switch (errorMethod) {
-                        case 1 -> threshold >= 0 && threshold <= 65025;
-                        case 2, 3 -> threshold >= 0 && threshold <= 255;
-                        case 4 -> threshold >= 0 && threshold <= 8;
+                        case 1 -> threshold >= 0.0 && threshold <= 65025.0;
+                        case 2, 3 -> threshold >= 0.0 && threshold <= 255.0;
+                        case 4 -> threshold >= 0.0 && threshold <= 8.0;
                         default -> false;
                     };
                     if (valid) {

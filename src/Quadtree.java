@@ -11,7 +11,7 @@ public class Quadtree {
     private int nodeCount = 0;
     private int depth     = 0;
 
-    public Quadtree(int[][][] img, int x, int y, int w, int h, int count, int minBlockSize,  int threshold, int method) {
+    public Quadtree(int[][][] img, int x, int y, int w, int h, int count, int minBlockSize,  double threshold, int method) {
 
         this.img = img;
         this.nodeCount = 0;  
@@ -19,7 +19,7 @@ public class Quadtree {
         this.root = recursive(x, y, w, h, 0, minBlockSize, threshold, method);
     }
 
-    private QuadtreeNode recursive(int x, int y, int w, int h, int currentDepth, int minBlockSize, int threshold, int method) {
+    private QuadtreeNode recursive(int x, int y, int w, int h, int currentDepth, int minBlockSize, double threshold, int method) {
         depth = Math.max(depth, currentDepth);
         double error;
 
