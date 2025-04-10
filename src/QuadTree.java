@@ -42,12 +42,13 @@ public class Quadtree {
         int halfWidth = w / 2, halfHeight = h / 2;
         QuadtreeNode node = new QuadtreeNode(null, false);
         node.children[0] = recursive(x, y, halfWidth, halfWidth, currentDepth+1, minBlockSize, threshold, method);
-        node.children[1] = recursive(x + halfWidth, y,  w-halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
-        node.children[2] = recursive(x, y + halfHeight, halfWidth, h-halfHeight, currentDepth+1, minBlockSize, threshold, method);
-        node.children[3] = recursive(x + halfWidth, y + halfHeight, w-halfWidth, h-halfHeight, currentDepth+1, minBlockSize, threshold, method);
+        node.children[1] = recursive(x + halfWidth, y,  halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
+        node.children[2] = recursive(x, y + halfHeight, halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
+        node.children[3] = recursive(x + halfWidth, y + halfHeight, halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
         nodeCount++;
         return node;
     }
+
 
     private int[] avgColor(int x, int y, int width, int height) {
         int r=0,g=0,b=0;
