@@ -20,7 +20,6 @@ public class Entropy {
             }
         }
 
-        // Hitung entropi
         double entropy = 0;
         for (int count : histogram.values()) {
             double probability = count / (double) totalPixels;

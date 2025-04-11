@@ -15,6 +15,7 @@ public class ImageProcessor {
         int errorMethod = -1;
         double threshold = -1;
         int minBlockSize = -1;
+        double targetcompression= 0;
         
         try {
             while (true) {
@@ -42,7 +43,7 @@ public class ImageProcessor {
             
                 // Cek kalau kosong
                 if (inputLine.isEmpty()) {
-                    System.out.println("Input tidak boleh kosong. Masukkan angka 1-4.");
+                    System.out.println("Input tidak boleh kosong. Masukkan angka antara 1-4.");
                     continue;
                 }
             
@@ -51,65 +52,102 @@ public class ImageProcessor {
                     if (errorMethod >= 1 && errorMethod <= 4) {
                         break; // valid, keluar loop
                     } else {
-                        System.out.println("Input metode tidak valid. Masukkan angka 1-4.");
+                        System.out.println("Input metode tidak valid. Masukkan angka antara 1-4.");
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("Input harus berupa angka. Masukkan angka 1-4.");
+                    System.out.println("Input harus berupa integer. Masukkan angka antara 1-4.");
                 }
             }            
 
-            
-            while (true) {
-                if (errorMethod == 1) 
-                    System.out.print("Masukkan ambang batas (0 - 65025): ");
-                else if (errorMethod == 2 || errorMethod == 3) 
-                    System.out.print("Masukkan ambang batas (0 - 255): ");
-                else 
-                    System.out.print("Masukkan ambang batas (0 - 8): ");
-
+            while (true){
+                System.out.print("Masukkan target kompresi (dalam desimal antara 0-1, 0 untuk nonaktifkan target): ");
                 String inputLine = input.nextLine().trim();
-            
                 if (inputLine.isEmpty()) {
                     System.out.println("Input tidak boleh kosong.");
                     continue;
                 }
-            
+
                 try {
-                    threshold = Double.parseDouble(inputLine);
-                    boolean valid = switch (errorMethod) {
-                        case 1 -> threshold >= 0.0 && threshold <= 65025.0;
-                        case 2, 3 -> threshold >= 0.0 && threshold <= 255.0;
-                        case 4 -> threshold >= 0.0 && threshold <= 8.0;
-                        default -> false;
-                    };
-                    if (valid) {
+                    targetcompression = Double.parseDouble(inputLine);
+                    if (targetcompression >= 0 && targetcompression <= 1)
                         break;
-                    } else {
-                        System.out.println("Ambang batas tidak valid untuk metode error yang dipilih.");
-                    }
+                    else 
+                        System.out.println("Input metode tidak valid. Masukkan angka desimal antara 0-1.");
                 } catch (NumberFormatException e) {
-                    System.out.println("Input harus berupa angka. Silakan coba lagi.");
+                    System.out.println("Input harus berupa float. Masukkan desimal antara 0-1.");
+                }
+
+            }
+
+            // Baca gambar
+            File imageFile = new File(imagePath);
+            BufferedImage image = ImageIO.read(imageFile);
+            int width = image.getWidth();
+            int height = image.getHeight();
+            int[][][] imageArray = new int[height][width][3];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    Color color = new Color(image.getRGB(x, y));
+                    imageArray[y][x][0] = color.getRed();
+                    imageArray[y][x][1] = color.getGreen();
+                    imageArray[y][x][2] = color.getBlue();
                 }
             }
+            long originalSize = imageFile.length();
+
+            if (targetcompression == 0){
+                while (true) {
+                    if (errorMethod == 1) 
+                        System.out.print("Masukkan ambang batas (0 - 65025): ");
+                    else if (errorMethod == 2 || errorMethod == 3) 
+                        System.out.print("Masukkan ambang batas (0 - 255): ");
+                    else 
+                        System.out.print("Masukkan ambang batas (0 - 8): ");
     
-            while (true) {
-                System.out.print("Masukkan ukuran minimum blok: ");
-                String inputLine = input.nextLine().trim();
-            
-                if (inputLine.isEmpty()) {
-                    System.out.println("Input tidak boleh kosong.");
-                    continue;
-                }
-            
-                try {
-                    minBlockSize = Integer.parseInt(inputLine);
-                    if (minBlockSize > 0) {
-                        break;
-                    } else {
-                        System.out.println("Ukuran blok harus lebih dari 0.");
+                    String inputLine = input.nextLine().trim();
+                
+                    if (inputLine.isEmpty()) {
+                        System.out.println("Input tidak boleh kosong.");
+                        continue;
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Input harus berupa angka. Silakan coba lagi.");
+                
+                    try {
+                        threshold = Double.parseDouble(inputLine);
+                        boolean valid = switch (errorMethod) {
+                            case 1 -> threshold >= 0.0 && threshold <= 65025.0;
+                            case 2, 3 -> threshold >= 0.0 && threshold <= 255.0;
+                            case 4 -> threshold >= 0.0 && threshold <= 8.0;
+                            default -> false;
+                        };
+                        if (valid) {
+                            break;
+                        } else {
+                            System.out.println("Ambang batas tidak valid untuk metode error yang dipilih.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Input harus berupa angka. Silakan coba lagi.");
+                    }
+                }
+        
+                while (true) {
+                    System.out.print("Masukkan ukuran minimum blok: ");
+                    String inputLine = input.nextLine().trim();
+                
+                    if (inputLine.isEmpty()) {
+                        System.out.println("Input tidak boleh kosong.");
+                        continue;
+                    }
+                
+                    try {
+                        minBlockSize = Integer.parseInt(inputLine);
+                        if (minBlockSize > 0) {
+                            break;
+                        } else {
+                            System.out.println("Ukuran blok harus lebih dari 0.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Input harus berupa integer. Silakan coba lagi.");
+                    }
                 }
             }
             
@@ -127,37 +165,32 @@ public class ImageProcessor {
                     continue;
                 }
 
-                // Cek apakah path diakhiri dengan ekstensi file gambar yang valid
                 if (!(outputPath.endsWith(".jpg") || outputPath.endsWith(".jpeg") || outputPath.endsWith(".png"))) {
                     System.out.println("Output harus berupa file gambar (.jpg, .jpeg, .png).");
                     continue;
                 }
 
-                break;
-            }
-
-            // Baca gambar
-            File imageFile = new File(imagePath);
-            BufferedImage image = ImageIO.read(imageFile);
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int[][][] imageArray = new int[height][width][3];
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    Color color = new Color(image.getRGB(x, y));
-                    imageArray[y][x][0] = color.getRed();
-                    imageArray[y][x][1] = color.getGreen();
-                    imageArray[y][x][2] = color.getBlue();
+                File parentDir = new File(outputPath).getParentFile();
+                if (parentDir != null && !parentDir.exists()) {
+                    System.out.println("Folder tujuan tidak ditemukan. Pastikan path sudah benar.");
+                    continue;
                 }
+
+                break;
             }
             
             long startTime = System.nanoTime();
-            
-            // Bangun QuadTree
+
+            if (targetcompression != 0){
+                CompressionResult result = CompressionResult.CompressionTarget(imageArray, width, height, targetcompression, errorMethod, originalSize);
+                threshold = result.threshold;
+                minBlockSize = result.minBlockSize;
+            } 
+
             Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, minBlockSize, threshold, errorMethod);
             
             long endTime = System.nanoTime();
-            long duration = (endTime - startTime); // Waktu dalam nanodetik
+            long duration = (endTime - startTime) / 1_000_000; 
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
             // Simpan hasil gambar
@@ -165,13 +198,11 @@ public class ImageProcessor {
             
             File outputFile = new File(outputPath);
 
-            long originalSize = imageFile.length();
             System.out.println("Ukuran gambar sebelum: " + originalSize + " bytes");
             
             long compressedSize = outputFile.length();
             System.out.println("Ukuran gambar setelah: " + compressedSize + " bytes");
             
-            // Hitung persentase kompresi
             double compressionPercentage = ((1 - (double) compressedSize / originalSize) * 100);
             System.out.println("Persentase kompresi: " + compressionPercentage + "%");
 
