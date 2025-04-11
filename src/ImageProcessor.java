@@ -181,7 +181,6 @@ public class ImageProcessor {
 
 
             boolean wantGif = false;
-            String gifOutputPath = "";
 
             while (true) {
                 System.out.println("Apakah Anda ingin menyimpan output dalam bentuk GIF animasi?");
@@ -260,7 +259,11 @@ public class ImageProcessor {
             long duration = (endTime - startTime) / 1_000_000; 
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
-            quadtree.saveImage(width, height, outputPath, gifOutputPath);
+            if (wantGif){
+                quadtree.saveImage(width, height, outputPath, gifOutputPath);
+            } else {
+                quadtree.saveCompressedImage(width, height, outputPath);
+            }
             
             File outputFile = new File(outputPath);
 
