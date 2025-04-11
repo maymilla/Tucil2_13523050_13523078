@@ -37,7 +37,7 @@
 
 //             // Save compressed image
 //             String outputFilePath = "test/output/kikuk_variance.jpg";
-//             quadtree.saveCompressedImage(width, height, outputFilePath);
+//             quadtree.saveImage(width, height, outputFilePath);
 
 //             // Get the size of the compressed image
 //             File outputFile = new File(outputFilePath);
@@ -185,7 +185,7 @@
 
     
 
-//     public void saveCompressedImage(int width, int height, String filePath) {
+//     public void saveImage(int width, int height, String filePath) {
 //         try {
 //             BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 //             reconstructImage(root, outputImage, 0, 0, width, height);

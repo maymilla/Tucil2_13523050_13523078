@@ -161,7 +161,7 @@ public class ImageProcessor {
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
             // Simpan hasil gambar
-            quadtree.saveCompressedImage(width, height, outputPath);
+            quadtree.saveImage(width, height, outputPath);
             
             File outputFile = new File(outputPath);
 

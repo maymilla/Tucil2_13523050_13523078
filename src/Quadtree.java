@@ -3,7 +3,12 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.FileImageOutputStream;
+
 
 public class Quadtree {
     private int[][][] img;
@@ -36,16 +41,20 @@ public class Quadtree {
         }
         if (error < threshold || w <= minBlockSize || h <= minBlockSize) {
             nodeCount++;
+            // BufferedImage frame = new BufferedImage(w,h, BufferedImage.TYPE_INT_RGB);
+            // gifFrames.add(frame);
             return new QuadtreeNode(avgColor(x, y, w, h), true);
         }
 
         int halfWidth = w / 2, halfHeight = h / 2;
-        QuadtreeNode node = new QuadtreeNode(null, false);
+        int[] avg = avgColor(x, y, w, h);
+        QuadtreeNode node = new QuadtreeNode(avg, false);
         node.children[0] = recursive(x, y, halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
         node.children[1] = recursive(x + halfWidth, y,  halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
         node.children[2] = recursive(x, y + halfHeight, halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
         node.children[3] = recursive(x + halfWidth, y + halfHeight, halfWidth, halfHeight, currentDepth+1, minBlockSize, threshold, method);
         nodeCount++;
+        
         return node;
     }
 
@@ -58,34 +67,98 @@ public class Quadtree {
                 g += img[i][j][1];
                 b += img[i][j][2];
             }
-        int total = width*height;
-        return new int[]{ r/total, g/total, b/total };
+        int totalPixel = width*height;
+        return new int[]{ r/totalPixel, g/totalPixel, b/totalPixel };
     }
 
-    public void saveCompressedImage(int w, int h, String path) {
+    public void saveImage(int w, int h, String path) {
         try {
-            BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-            outputImage(root, out, 0, 0, w, h);
-            ImageIO.write(out, "jpg", new File(path));
+            BufferedImage outputImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            createOutputImage(root, outputImage, 0, 0, w, h);
+            ImageIO.write(outputImage, "jpg", new File(path));
+
+            List<BufferedImage> gifFrames = new ArrayList<>();
+            for (int d = 0; d <= this.depth; d++) {
+                BufferedImage frame = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                renderUpToDepth(root, frame, 0, 0, w, h, 0, d);
+                gifFrames.add(frame);
+            }
+
+            createGif(gifFrames, "compression_process.gif");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void outputImage(QuadtreeNode n, BufferedImage imgOut, int x, int y, int width, int height) {
+    public void createGif(List<BufferedImage> gifFrames, String outputPath ) throws IOException{
+        ImageOutputStream output = new FileImageOutputStream(new File(outputPath));
+        GifWriter gifWriter = new GifWriter(output, gifFrames.get(0).getType());
+        for (BufferedImage frame : gifFrames) {
+            gifWriter.writeToSequence(frame);
+        }
+        gifWriter.close();
+        output.close();
+    }
+
+    private void renderUpToDepth(QuadtreeNode node, BufferedImage out, int x, int y, int width, int height,
+                                int currentDepth, int maxDepthAllowed) {
+        // jika node yg ditemukan adalah leaf node atau di depth yang >= maxdepthAllowed, ambil warna untuk dipakai di node itu
+        // jika tidak, rekursi ke anak-anak dari node
+        if (node.isLeaf || currentDepth >= maxDepthAllowed) {
+            Color c = new Color(node.color[0], node.color[1], node.color[2]);
+            for (int i=0; i<height; i++) {
+                for (int j=0; j<width; j++) {
+                    out.setRGB(x+j, y+i, c.getRGB());
+                }
+            }
+        } else {
+            int halfWidth = width / 2;
+            int halfHeight = height / 2;
+            int remWidth = width - halfWidth;
+            int remHeight = height - halfHeight;
+        
+            renderUpToDepth(node.children[0], out, x, y, 
+                            halfWidth, halfHeight, currentDepth+1, maxDepthAllowed);
+        
+            renderUpToDepth(node.children[1], out, x+halfWidth, y, 
+                            remWidth, halfHeight, currentDepth+1, maxDepthAllowed);
+        
+            renderUpToDepth(node.children[2], out, x, y+halfHeight, 
+                            halfWidth, remHeight, currentDepth+1, maxDepthAllowed);
+        
+            renderUpToDepth(node.children[3], out, x+halfWidth, y+halfHeight,
+                            remWidth, remHeight, currentDepth+1, maxDepthAllowed);
+        }
+        
+}
+
+
+    private void createOutputImage(QuadtreeNode n, BufferedImage outputImage, int x, int y, int width, int height) {
         if (n.isLeaf) {
             Color c = new Color(n.color[0], n.color[1], n.color[2]);
-            for (int i=0;i<height;i++)
-                for (int j=0;j<width;j++)
-                    if (y+i < imgOut.getHeight() && x+j < imgOut.getWidth())
-                        imgOut.setRGB(x+j, y+i, c.getRGB());
+            for (int i=0;i<height;i++) {
+                for (int j=0;j<width;j++){
+                    if (y+i < outputImage.getHeight() && x+j < outputImage.getWidth()){
+                        outputImage.setRGB(x+j, y+i, c.getRGB());
+                    }
+                }
+            }
+                
+            
+            // BufferedImage gifFrame = new BufferedImage(outputImage.getWidth(), outputImage.getHeight(), outputImage.getType());
+            // gifFrame.setData(outputImage.getData());
+            // int frameCounter = 0;
+            // if (frameCounter % 20 == 0) { // simpan setiap 20 frame
+            //     gifFrames.add(gifFrame);
+            // }
+            // frameCounter++;
         } else {
             int halfWidth = width/2, halfHeight = height/2;
             int remWidth = width-halfWidth, remHeight = height-halfHeight;
-            outputImage(n.children[0], imgOut, x, y, halfWidth, halfHeight);
-            outputImage(n.children[1], imgOut, x+halfWidth, y, remWidth, halfHeight);
-            outputImage(n.children[2], imgOut, x, y+halfHeight, halfWidth, remHeight);
-            outputImage(n.children[3], imgOut, x+halfWidth, y+halfHeight, remWidth, remHeight);
+            createOutputImage(n.children[0], outputImage, x, y, halfWidth, halfHeight);
+            createOutputImage(n.children[1], outputImage, x+halfWidth, y, remWidth, halfHeight);
+            createOutputImage(n.children[2], outputImage, x, y+halfHeight, halfWidth, remHeight);
+            createOutputImage(n.children[3], outputImage, x+halfWidth, y+halfHeight, remWidth, remHeight);
         }
     }
 

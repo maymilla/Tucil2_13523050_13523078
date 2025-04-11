@@ -1,7 +1,7 @@
 public class QuadtreeNode {
     int[] color;               // {R,G,B}
     boolean isLeaf;
-    QuadtreeNode[] children;    // always length‑4 (NW, NE, SW, SE)
+    QuadtreeNode[] children;    
 
     public QuadtreeNode(int[] color, boolean isLeaf) {
         this.color   = color;

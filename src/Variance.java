@@ -3,18 +3,20 @@ public class Variance {
                                    int x, int y, int w, int h) {
 
         int[] avg = avgColor(img, x, y, w, h);
-        int ar = avg[0], ag = avg[1], ab = avg[2];
+        int avgr = avg[0];
+        int avgg = avg[1];
+        int avgb = avg[2];
 
         double sr=0, sg=0, sb=0;
         for (int i=y;i<y+h;i++)
             for (int j=x;j<x+w;j++) {
-                sr += Math.pow(img[i][j][0] - ar, 2);
-                sg += Math.pow(img[i][j][1] - ag, 2);
-                sb += Math.pow(img[i][j][2] - ab, 2);
+                sr += Math.pow(img[i][j][0] - avgr, 2);
+                sg += Math.pow(img[i][j][1] - avgg, 2);
+                sb += Math.pow(img[i][j][2] - avgb, 2);
             }
 
-        double area = w * h;
-        double vr = sr/area, vg = sg/area, vb = sb/area;
+        double n = w * h;
+        double vr = sr/n, vg = sg/n, vb = sb/n;
         return (vr + vg + vb) / 3.0;
     }
     private static int[] avgColor(int[][][] img,
