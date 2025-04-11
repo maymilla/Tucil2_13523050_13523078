@@ -221,7 +221,6 @@ public class ImageProcessor {
                 minBlockSize = result.minBlockSize;
             } 
 
-
             Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, minBlockSize, threshold, errorMethod);
             
             long endTime = System.nanoTime();

@@ -90,6 +90,16 @@ public class Quadtree {
         }
     }
 
+    public void saveCompressedImage(int w, int h, String path) {
+        try {
+            BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            createOutputImage(root, out, 0, 0, w, h);
+            ImageIO.write(out, "jpg", new File(path));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }    
+
     public void createGif(List<BufferedImage> gifFrames, String outputPath ) throws IOException{
         ImageOutputStream output = new FileImageOutputStream(new File(outputPath));
         GifWriter gifWriter = new GifWriter(output, gifFrames.get(0).getType());
