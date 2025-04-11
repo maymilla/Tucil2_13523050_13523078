@@ -42,7 +42,6 @@ public class ImageProcessor {
                 System.out.print("Masukkan metode perhitungan error (1-4): ");
                 String inputLine = input.nextLine().trim();
             
-                // Cek kalau kosong
                 if (inputLine.isEmpty()) {
                     System.out.println("Input tidak boleh kosong. Masukkan angka antara 1-4.");
                     continue;
@@ -51,7 +50,7 @@ public class ImageProcessor {
                 try {
                     errorMethod = Integer.parseInt(inputLine);
                     if (errorMethod >= 1 && errorMethod <= 4) {
-                        break; // valid, keluar loop
+                        break; 
                     } else {
                         System.out.println("Input metode tidak valid. Masukkan angka antara 1-4.");
                     }
@@ -109,7 +108,6 @@ public class ImageProcessor {
                 break;
             }
 
-            // Baca gambar
             File imageFile = new File(imagePath);
             BufferedImage image = ImageIO.read(imageFile);
             int width = image.getWidth();
@@ -209,6 +207,12 @@ public class ImageProcessor {
                 break;
             }
             
+            System.out.println();
+            System.out.println("------------------------------------------------------------------------");
+            System.out.println("                    Mohon tunggu. Sedang diproses...");
+            System.out.println("------------------------------------------------------------------------");
+            System.out.println();
+
             long startTime = System.nanoTime();
 
             if (targetcompression != 0){
@@ -217,21 +221,21 @@ public class ImageProcessor {
                 minBlockSize = result.minBlockSize;
             } 
 
+
             Quadtree quadtree = new Quadtree(imageArray, 0, 0, width, height, 0, minBlockSize, threshold, errorMethod);
             
             long endTime = System.nanoTime();
             long duration = (endTime - startTime) / 1_000_000; 
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
-            // Simpan hasil gambar
             quadtree.saveImage(width, height, outputPath);
             
             File outputFile = new File(outputPath);
 
-            System.out.println("Ukuran gambar sebelum: " + originalSize + " bytes");
+            System.out.println("Ukuran gambar sebelum kompresi: " + originalSize + " bytes");
             
             long compressedSize = outputFile.length();
-            System.out.println("Ukuran gambar setelah: " + compressedSize + " bytes");
+            System.out.println("Ukuran gambar setelah kompresi: " + compressedSize + " bytes");
             
             double compressionPercentage = ((1 - (double) compressedSize / originalSize) * 100);
             System.out.println("Persentase kompresi: " + compressionPercentage + "%");
