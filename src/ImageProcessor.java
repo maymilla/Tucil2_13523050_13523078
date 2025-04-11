@@ -79,35 +79,7 @@ public class ImageProcessor {
 
             }
 
-            while (true) {
-                System.out.print("Masukkan path absolut untuk output GIF animasi: ");
-                gifOutputPath = input.nextLine().trim();
             
-                if (gifOutputPath.isEmpty()) {
-                    System.out.println("Path tidak boleh kosong.");
-                    continue;
-                }
-            
-                if (!gifOutputPath.toLowerCase().endsWith(".gif")) {
-                    System.out.println("Output harus berupa file GIF (.gif).");
-                    continue;
-                }
-            
-                if (gifOutputPath.equals(imagePath)) {
-                    System.out.println("Path output GIF tidak boleh sama dengan path input!");
-                    continue;
-                }
-            
-                File gifFile = new File(gifOutputPath);
-                File parentDir = gifFile.getParentFile();
-                if (parentDir != null && !parentDir.exists()) {
-                    System.out.println("Folder tujuan tidak ditemukan. Pastikan path sudah benar.");
-                    continue;
-                }
-            
-                break;
-            }
-
             File imageFile = new File(imagePath);
             BufferedImage image = ImageIO.read(imageFile);
             int width = image.getWidth();
@@ -122,23 +94,23 @@ public class ImageProcessor {
                 }
             }
             long originalSize = imageFile.length();
-
+            
             if (targetcompression == 0){
                 while (true) {
                     if (errorMethod == 1) 
-                        System.out.print("Masukkan ambang batas (0 - 65025): ");
+                    System.out.print("Masukkan ambang batas (0 - 65025): ");
                     else if (errorMethod == 2 || errorMethod == 3) 
-                        System.out.print("Masukkan ambang batas (0 - 255): ");
+                    System.out.print("Masukkan ambang batas (0 - 255): ");
                     else 
-                        System.out.print("Masukkan ambang batas (0 - 8): ");
-    
+                    System.out.print("Masukkan ambang batas (0 - 8): ");
+                    
                     String inputLine = input.nextLine().trim();
-                
+                    
                     if (inputLine.isEmpty()) {
                         System.out.println("Input tidak boleh kosong.");
                         continue;
                     }
-                
+                    
                     try {
                         threshold = Double.parseDouble(inputLine);
                         boolean valid = switch (errorMethod) {
@@ -156,16 +128,16 @@ public class ImageProcessor {
                         System.out.println("Input harus berupa angka. Silakan coba lagi.");
                     }
                 }
-        
+                
                 while (true) {
                     System.out.print("Masukkan ukuran minimum blok: ");
                     String inputLine = input.nextLine().trim();
-                
+                    
                     if (inputLine.isEmpty()) {
                         System.out.println("Input tidak boleh kosong.");
                         continue;
                     }
-                
+                    
                     try {
                         minBlockSize = Integer.parseInt(inputLine);
                         if (minBlockSize > 0) {
@@ -182,30 +154,91 @@ public class ImageProcessor {
             while (true) {
                 System.out.print("Masukkan alamat absolut gambar hasil kompresi: ");
                 outputPath = input.nextLine().trim();
-
+                
                 if (outputPath.isEmpty()) {
                     System.out.println("Path tidak boleh kosong.");
                     continue;
                 }
-
+                
                 if (outputPath.equals(imagePath)) {
                     System.out.println("Path output tidak boleh sama dengan input!");
                     continue;
                 }
-
+                
                 if (!(outputPath.endsWith(".jpg") || outputPath.endsWith(".jpeg") || outputPath.endsWith(".png"))) {
                     System.out.println("Output harus berupa file gambar (.jpg, .jpeg, .png).");
                     continue;
                 }
-
+                
                 File parentDir = new File(outputPath).getParentFile();
                 if (parentDir != null && !parentDir.exists()) {
                     System.out.println("Folder tujuan tidak ditemukan. Pastikan path sudah benar.");
                     continue;
                 }
-
+                
                 break;
             }
+
+
+            boolean wantGif = false;
+            String gifOutputPath = "";
+
+            while (true) {
+                System.out.println("Apakah Anda ingin menyimpan output dalam bentuk GIF animasi?");
+                System.out.println("1. Ya");
+                System.out.println("2. Tidak");
+                System.out.print("Masukkan pilihan Anda (1/2): ");
+                String choice = input.nextLine().trim();
+
+                if (choice.isEmpty()) {
+                    System.out.println("Input tidak boleh kosong.");
+                    continue;
+                }
+
+                try {
+                    int gifChoice = Integer.parseInt(choice);
+                    if (gifChoice == 1) {
+                        wantGif = true;
+
+                        while (true) {
+                            System.out.print("Masukkan path absolut untuk output GIF animasi: ");
+                            gifOutputPath = input.nextLine().trim();
+
+                            if (gifOutputPath.isEmpty()) {
+                                System.out.println("Path tidak boleh kosong.");
+                                continue;
+                            }
+
+                            if (!gifOutputPath.toLowerCase().endsWith(".gif")) {
+                                System.out.println("Output harus berupa file GIF (.gif).");
+                                continue;
+                            }
+
+                            if (gifOutputPath.equals(imagePath)) {
+                                System.out.println("Path output GIF tidak boleh sama dengan path input!");
+                                continue;
+                            }
+
+                            File gifFile = new File(gifOutputPath);
+                            File parentDir = gifFile.getParentFile();
+                            if (parentDir != null && !parentDir.exists()) {
+                                System.out.println("Folder tujuan tidak ditemukan. Pastikan path sudah benar.");
+                                continue;
+                            }
+                            break;
+                        }
+                        break;
+                    } else if (gifChoice == 2) {
+                        wantGif = false;
+                        break;
+                    } else {
+                        System.out.println("Pilihan harus 1 (Ya) atau 2 (Tidak).");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Input harus berupa angka 1 atau 2.");
+                }
+            }
+
             
             System.out.println();
             System.out.println("------------------------------------------------------------------------");
