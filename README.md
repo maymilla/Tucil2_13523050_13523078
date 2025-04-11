@@ -40,13 +40,13 @@ Anda perlu menginstall Java JDK 17 atau versi lebih baru.
 2. Navigasi ke folder src
 3. Jalankan perintah berikut untuk compile semua file:
 ```
-javac *.java
+javac -d bin src/*.java
 ```
 
 ## Cara Menjalankan Program
 1. Ketikan command di terminal
 ```
-   java ImageProcessor
+   java -cp bin ImageProcessor
 ```
 3. Program akan berjalan di terminal, dan Anda akan diminta memasukkan path input absolut, metode perhitungan error, target kompresi (opsional), threshold, minimum block size, path output gambar absolut, dan path output gif absolut.
 4. Setelah program berjalan, akan ada hasil berupa File gambar hasil kompresi (JPG/PNG), file GIF animasi proses kompresi dari awal hingga akhir, serta beberapa informasi tambahan di terminal:
