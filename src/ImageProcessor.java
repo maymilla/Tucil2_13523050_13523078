@@ -12,6 +12,7 @@ public class ImageProcessor {
         // inisialisasi
         String imagePath = "";
         String outputPath = "";
+        String gifOutputPath = "";
         int errorMethod = -1;
         double threshold = -1;
         int minBlockSize = -1;
@@ -77,6 +78,35 @@ public class ImageProcessor {
                     System.out.println("Input harus berupa float. Masukkan desimal antara 0-1.");
                 }
 
+            }
+
+            while (true) {
+                System.out.print("Masukkan path absolut untuk output GIF animasi: ");
+                gifOutputPath = input.nextLine().trim();
+            
+                if (gifOutputPath.isEmpty()) {
+                    System.out.println("Path tidak boleh kosong.");
+                    continue;
+                }
+            
+                if (!gifOutputPath.toLowerCase().endsWith(".gif")) {
+                    System.out.println("Output harus berupa file GIF (.gif).");
+                    continue;
+                }
+            
+                if (gifOutputPath.equals(imagePath)) {
+                    System.out.println("Path output GIF tidak boleh sama dengan path input!");
+                    continue;
+                }
+            
+                File gifFile = new File(gifOutputPath);
+                File parentDir = gifFile.getParentFile();
+                if (parentDir != null && !parentDir.exists()) {
+                    System.out.println("Folder tujuan tidak ditemukan. Pastikan path sudah benar.");
+                    continue;
+                }
+            
+                break;
             }
 
             // Baca gambar
