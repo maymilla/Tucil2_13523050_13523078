@@ -26,7 +26,7 @@ public class CompressionResult {
                 double mid = (low + high) / 2.0;
 
                 Quadtree qt = new Quadtree(imageArray, 0, 0, width, height, 0, blockSize, mid, errorMethod);
-                qt.saveCompressedImage(width, height, "temp_compress.jpg");
+                qt.saveImage(width, height, "temp_compress.jpg");
 
                 File temp = new File("temp_compress.jpg");
                 long size = temp.length();
