@@ -71,11 +71,11 @@ public class Quadtree {
         return new int[]{ r/totalPixel, g/totalPixel, b/totalPixel };
     }
 
-    public void saveImage(int w, int h, String path) {
+    public void saveImage(int w, int h, String pathImage, String pathGif) {
         try {
             BufferedImage outputImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
             createOutputImage(root, outputImage, 0, 0, w, h);
-            ImageIO.write(outputImage, "jpg", new File(path));
+            ImageIO.write(outputImage, "jpg", new File(pathImage));
 
             List<BufferedImage> gifFrames = new ArrayList<>();
             for (int d = 0; d <= this.depth; d++) {
@@ -84,7 +84,7 @@ public class Quadtree {
                 gifFrames.add(frame);
             }
 
-            createGif(gifFrames, "compression_process.gif");
+            createGif(gifFrames, pathGif);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

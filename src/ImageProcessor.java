@@ -228,7 +228,7 @@ public class ImageProcessor {
             long duration = (endTime - startTime) / 1_000_000; 
             System.out.println("Waktu eksekusi: " + duration + " ms");
             
-            quadtree.saveImage(width, height, outputPath);
+            quadtree.saveImage(width, height, outputPath, gifOutputPath);
             
             File outputFile = new File(outputPath);
 

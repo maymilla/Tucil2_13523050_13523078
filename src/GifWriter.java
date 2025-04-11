@@ -32,11 +32,11 @@ public class GifWriter {
         IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metaFormatName);
 
         IIOMetadataNode graphicsControlExtensionNode = getNode(root, "GraphicControlExtension");
-        // graphicsControlExtensionNode.setAttribute("disposalMethod", "none");
-        // graphicsControlExtensionNode.setAttribute("userInputFlag", "FALSE");
-        // graphicsControlExtensionNode.setAttribute("transparentColorFlag", "FALSE");
+        graphicsControlExtensionNode.setAttribute("disposalMethod", "none");
+        graphicsControlExtensionNode.setAttribute("userInputFlag", "FALSE");
+        graphicsControlExtensionNode.setAttribute("transparentColorFlag", "FALSE");
         graphicsControlExtensionNode.setAttribute("delayTime", Integer.toString(1000 / 10));
-        // graphicsControlExtensionNode.setAttribute("transparentColorIndex", "0");
+        graphicsControlExtensionNode.setAttribute("transparentColorIndex", "0");
 
         IIOMetadataNode appExtensionsNode = getNode(root, "ApplicationExtensions");
         IIOMetadataNode child = new IIOMetadataNode("ApplicationExtension");
