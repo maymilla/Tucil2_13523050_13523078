@@ -25,7 +25,6 @@ public class CompressionResult {
             while (low <= high) {
                 double mid = (low + high) / 2.0;
 
-                // Bangun Quadtree sementara
                 Quadtree qt = new Quadtree(imageArray, 0, 0, width, height, 0, blockSize, mid, errorMethod);
                 qt.saveCompressedImage(width, height, "temp_compress.jpg");
 
@@ -33,7 +32,6 @@ public class CompressionResult {
                 long size = temp.length();
                 double compression = 1 - ((double) size / originalSize);
 
-                // Perbarui threshold terbaik jika lebih mendekati target
                 if (compression >= targetCompression) {
                     if (Math.abs(compression - targetCompression) < Math.abs(bestCompression - targetCompression)) {
                         bestThreshold = mid;
@@ -45,7 +43,7 @@ public class CompressionResult {
                 } else {
                     low = mid + tolerance;
                 }
-                temp.delete(); // bersihkan
+                temp.delete(); 
             }
         }
         return new CompressionResult(bestThreshold, bestBlockSize);
