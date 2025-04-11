@@ -127,17 +127,10 @@ public class Quadtree {
             int remWidth = width - halfWidth;
             int remHeight = height - halfHeight;
         
-            renderUpToDepth(node.children[0], out, x, y, 
-                            halfWidth, halfHeight, currentDepth+1, maxDepthAllowed);
-        
-            renderUpToDepth(node.children[1], out, x+halfWidth, y, 
-                            remWidth, halfHeight, currentDepth+1, maxDepthAllowed);
-        
-            renderUpToDepth(node.children[2], out, x, y+halfHeight, 
-                            halfWidth, remHeight, currentDepth+1, maxDepthAllowed);
-        
-            renderUpToDepth(node.children[3], out, x+halfWidth, y+halfHeight,
-                            remWidth, remHeight, currentDepth+1, maxDepthAllowed);
+            renderUpToDepth(node.children[0], out, x, y, halfWidth, halfHeight, currentDepth+1, maxDepthAllowed);
+            renderUpToDepth(node.children[1], out, x+halfWidth, y, remWidth, halfHeight, currentDepth+1, maxDepthAllowed);
+            renderUpToDepth(node.children[2], out, x, y+halfHeight, halfWidth, remHeight, currentDepth+1, maxDepthAllowed);
+            renderUpToDepth(node.children[3], out, x+halfWidth, y+halfHeight, remWidth, remHeight, currentDepth+1, maxDepthAllowed);
         }
         
 }
