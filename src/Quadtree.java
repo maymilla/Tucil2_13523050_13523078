@@ -143,15 +143,7 @@ public class Quadtree {
                     }
                 }
             }
-                
-            
-            // BufferedImage gifFrame = new BufferedImage(outputImage.getWidth(), outputImage.getHeight(), outputImage.getType());
-            // gifFrame.setData(outputImage.getData());
-            // int frameCounter = 0;
-            // if (frameCounter % 20 == 0) { // simpan setiap 20 frame
-            //     gifFrames.add(gifFrame);
-            // }
-            // frameCounter++;
+
         } else {
             int halfWidth = width/2, halfHeight = height/2;
             int remWidth = width-halfWidth, remHeight = height-halfHeight;
